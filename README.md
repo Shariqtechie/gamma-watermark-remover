@@ -23,7 +23,7 @@ Perfect for anyone stuck with “Gamma” or similar watermark issues in PowerPo
 ## 🚀 Try It Online
 
 Use it directly here 👇
-👉 **[Gamma Watermark Remover — Live Page](https://shariqtechie.github.io/Gamma-Watermark-Remover/)**
+👉 **[Gamma Watermark Remover — Live Page](https://shariqtechie.github.io/gamma-watermark-remover/)**
 
 This link always gives you the **latest version with fixes and new improvements**.
 If you download and use the HTML file offline, it will still work — but you’ll **miss automatic updates**.
