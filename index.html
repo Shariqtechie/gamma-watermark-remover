@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Gamma Watermark Remover — Fixed v2</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;margin:0;background:linear-gradient(135deg,#0f172a,#1e293b);color:#e2e8f0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+  .card{width:100%;max-width:880px;background:rgba(30,41,59,0.85);border-radius:14px;padding:26px;border:1px solid rgba(148,163,184,0.06);box-shadow:0 12px 40px rgba(0,0,0,0.5)}
+  h1{margin:0 0 6px;font-size:24px}
+  p.sub{margin:0 0 18px;color:#94a3b8}
+  .drop{border:2px dashed #475569;border-radius:12px;padding:28px;text-align:center;background:rgba(15,23,42,0.45);cursor:pointer;user-select:none}
+  .drop.drag{border-color:#10b981;background:rgba(16,185,129,0.04)}
+  .controls{display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap}
+  input[type=file]{display:none}
+  .btn{padding:10px 16px;border-radius:10px;border:0;cursor:pointer;font-weight:700}
+  .btn-primary{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
+  .btn-ghost{background:rgba(255,255,255,0.03);color:#e6f3f3;border:1px solid rgba(255,255,255,0.03)}
+  .log{margin-top:16px;background:rgba(0,0,0,0.36);padding:12px;border-radius:10px;max-height:320px;overflow:auto;font-family:monospace;font-size:13px}
+  .row{display:flex;gap:8px;align-items:center}
+  .file-info{margin-left:8px;color:#9fd7d5;font-size:13px}
+  .spinner{width:18px;height:18px;border:3px solid rgba(255,255,255,0.08);border-top:3px solid #10b981;border-radius:50%;animation:spin .9s linear infinite;display:inline-block;vertical-align:middle}
+  @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+  .footer{margin-top:14px;font-size:12px;color:#64748b}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🎨 Gamma Watermark Remover — Fixed v2</h1>
+  <p class="sub">Removes small watermark images (<50KB) and cleans their XML references (slides, slideLayouts, slideMasters). Runs locally in your browser — no upload.</p>
+
+  <div id="drop" class="drop" role="button" tabindex="0">
+    <div id="dropText">Drop your .pptx here — or use the buttons below</div>
+    <div style="margin-top:8px;font-size:13px;color:#94a3b8">Tip: use Chrome or Firefox for best results on mobile.</div>
+  </div>
+
+  <div class="controls">
+    <div class="row">
+      <label for="file" class="btn btn-ghost" id="chooseBtn">Choose file</label>
+      <input id="file" type="file" accept=".pptx" />
+      <div id="fileInfo" class="file-info hidden"></div>
+    </div>
+
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button id="process" class="btn btn-primary" disabled>Remove Watermarks</button>
+      <button id="toggleLog" class="btn btn-ghost">Show Log</button>
+    </div>
+  </div>
+
+  <div id="log" class="log hidden"></div>
+  <div class="footer">Processing happens in-browser. If a cleaned file doesn't open, tell me the file name and I'll patch further.</div>
+</div>
+
+<!-- CDN libs -->
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+
+<script>
+/* --- Core UI glue & fixes (v2) --- */
+const drop = document.getElementById('drop');
+const fileInput = document.getElementById('file');
+const chooseBtn = document.getElementById('chooseBtn');
+const processBtn = document.getElementById('process');
+const toggleLog = document.getElementById('toggleLog');
+const logEl = document.getElementById('log');
+const fileInfo = document.getElementById('fileInfo');
+
+let selectedFile = null;
+let logVisible = false;
+
+function showLog(){ logEl.classList.remove('hidden'); toggleLog.textContent='Hide Log'; logVisible=true; }
+function hideLog(){ logEl.classList.add('hidden'); toggleLog.textContent='Show Log'; logVisible=false; }
+
+function prettyBytes(n){
+  if(n===0) return '0 B';
+  const units=['B','KB','MB','GB']; let i=Math.floor(Math.log(n)/Math.log(1024));
+  return (n/Math.pow(1024,i)).toFixed(i?2:0)+' '+units[i];
+}
+function uiSelectFile(file){
+  selectedFile = file;
+  fileInfo.classList.remove('hidden');
+  fileInfo.textContent = file.name + ' • ' + prettyBytes(file.size);
+  processBtn.disabled = false;
+  log('Selected ' + file.name);
+}
+
+/* Make drop & choose robust on mobile: both click & touch */
+drop.addEventListener('click', ()=> fileInput.click());
+drop.addEventListener('keydown', e=> { if(e.key==='Enter' || e.key===' ') fileInput.click(); });
+drop.addEventListener('touchstart', ()=> fileInput.click());
+
+drop.addEventListener('dragover', e=>{ e.preventDefault(); drop.classList.add('drag'); });
+drop.addEventListener('dragleave', ()=> drop.classList.remove('drag'));
+drop.addEventListener('drop', e=>{ e.preventDefault(); drop.classList.remove('drag'); if(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) uiSelectFile(e.dataTransfer.files[0]); });
+
+chooseBtn.addEventListener('click', ()=> fileInput.click());
+fileInput.addEventListener('change', e => { if(e.target.files && e.target.files[0]) uiSelectFile(e.target.files[0]); });
+
+toggleLog.addEventListener('click', ()=> logVisible?hideLog():showLog());
+
+function log(msg, level='info'){
+  const time = new Date().toLocaleTimeString();
+  const entry = document.createElement('div');
+  entry.textContent = `[${time}] ${msg}`;
+  if(level==='error') entry.style.color='#ef4444';
+  else if(level==='success') entry.style.color='#10b981';
+  else if(level==='warn') entry.style.color='#f59e0b';
+  else entry.style.color='#94a3b8';
+  logEl.insertBefore(entry, logEl.firstChild);
+  if(!logVisible) showLog();
+}
+
+/* --- Watermark removal logic (same robust algorithm, expanded) --- */
+
+processBtn.addEventListener('click', async () => {
+  if(!selectedFile){ alert('Please choose a .pptx first.'); return; }
+  processBtn.disabled = true;
+  processBtn.textContent = 'Processing...';
+  const spinner = document.createElement('span');
+  spinner.className = 'spinner';
+  processBtn.prepend(spinner);
+
+  try {
+    if(typeof JSZip === 'undefined' || typeof saveAs === 'undefined') throw new Error('Missing libraries (JSZip/FileSaver).');
+    log('Loading file into memory...');
+    const buf = await selectedFile.arrayBuffer();
+    const zip = await JSZip.loadAsync(buf);
+
+    // find media images
+    log('Scanning /ppt/media for images...');
+    const mediaFiles = Object.keys(zip.files).filter(n => /^ppt\/media\//i.test(n) && /\.(png|jpe?g|gif|svg|webp)$/i.test(n));
+    log(`Found ${mediaFiles.length} media file(s).`);
+    const candidates = [];
+    for(const path of mediaFiles){
+      const arr = await zip.files[path].async('uint8array');
+      const size = arr.length;
+      // tune thresholds as needed (small images likely watermarks)
+      if(size >= 800 && size <= 50000){
+        candidates.push({path, name: path.split('/').pop(), size});
+        log(`Candidate: ${path} (${prettyBytes(size)})`, 'warn');
+      }
+    }
+    if(candidates.length === 0){
+      log('No likely watermark images found.', 'info');
+      alert('No small images found — nothing to remove.');
+      return;
+    }
+
+    // map relationships: which .xml.rels reference each image
+    log('Mapping relationships to find rIds...');
+    const relFiles = Object.keys(zip.files).filter(n => n.endsWith('.xml.rels'));
+    const imageRelMap = {}; // imageName -> [{relsFile, relId, parentXml}]
+    for(const c of candidates){
+      imageRelMap[c.name] = [];
+      for(const relPath of relFiles){
+        const txt = await zip.files[relPath].async('text');
+        const relXml = new DOMParser().parseFromString(txt, 'application/xml');
+        const rels = relXml.getElementsByTagName('Relationship');
+        for(let i=0;i<rels.length;i++){
+          const r = rels[i];
+          const target = r.getAttribute('Target') || '';
+          const id = r.getAttribute('Id') || '';
+          if(target.includes(c.name)){
+            // compute the xml that this rel file belongs to (slide, layout, master, etc)
+            const parentXml = relPath.replace('.xml.rels','.xml');
+            imageRelMap[c.name].push({relsFile: relPath, relId: id, parentXml});
+            log(`Mapped ${c.name} -> ${id} in ${relPath}`, 'info');
+          }
+        }
+      }
+    }
+
+    // helper to remove pic shapes referencing relId
+    function removePicsByRelId(xmlDoc, relId){
+      let removed = 0;
+      const blips = xmlDoc.getElementsByTagNameNS('*','blip'); // may return empty in some browsers
+      // fallback: search all elements and check localName === 'blip'
+      const all = xmlDoc.getElementsByTagName('*');
+      const nodesToRemove = [];
+      for(let i=0;i<all.length;i++){
+        const el = all[i];
+        const local = (el.localName||'').toLowerCase();
+        if(local === 'blip'){
+          // r:embed attribute commonly used
+          const embed = el.getAttribute('r:embed') || el.getAttribute('embed') || '';
+          if(embed === relId){
+            // climb to ancestor picture/shape
+            let anc = el;
+            while(anc.parentNode){
+              const pLocal = (anc.parentNode.localName||'').toLowerCase();
+              if(pLocal === 'pic' || pLocal.endsWith(':pic') || pLocal === 'sp' || pLocal.endsWith(':sp') || pLocal === 'graphicframe') {
+                anc = anc.parentNode;
+                break;
+              }
+              anc = anc.parentNode;
+            }
+            if(anc && !nodesToRemove.includes(anc)) nodesToRemove.push(anc);
+          }
+        }
+      }
+      for(const n of nodesToRemove){
+        if(n.parentNode){
+          n.parentNode.removeChild(n);
+          removed++;
+        }
+      }
+      return removed;
+    }
+
+    // Remove refs from slides, layouts, masters, and any parent XMLs found
+    log('Removing picture shapes and relationship entries...');
+    let totalShapesRemoved = 0;
+    for(const c of candidates){
+      const mappings = imageRelMap[c.name] || [];
+      if(mappings.length === 0){
+        log(`No relationship entries found for ${c.name} — will delete file only.`, 'warn');
+      }
+      // collect unique xml files to scan: slide files, slideLayouts, slideMasters, customXmls
+      const xmlFilesToScan = new Set();
+      for(const m of mappings) xmlFilesToScan.add(m.parentXml);
+      // also add common layout/master folders
+      const extraFiles = Object.keys(zip.files).filter(n => /^ppt\/(slides|slideLayouts|slideMasters)\/.*\.xml$/i.test(n));
+      extraFiles.forEach(x => xmlFilesToScan.add(x));
+
+      // For each xml, load, remove shapes by relIds that match mappings
+      for(const xmlPath of Array.from(xmlFilesToScan)){
+        if(!zip.files[xmlPath]) continue;
+        const txt = await zip.files[xmlPath].async('text');
+        const xmlDoc = new DOMParser().parseFromString(txt, 'application/xml');
+        let removedThisXml = 0;
+        for(const m of mappings){
+          removedThisXml += removePicsByRelId(xmlDoc, m.relId);
+        }
+        if(removedThisXml > 0){
+          zip.file(xmlPath, new XMLSerializer().serializeToString(xmlDoc));
+          log(`Removed ${removedThisXml} shape(s) from ${xmlPath}`, 'success');
+          totalShapesRemoved += removedThisXml;
+        }
+      }
+
+      // Remove relationship entries (in the .rels files)
+      const relFilesToUpdate = new Set(mappings.map(m=>m.relsFile));
+      for(const relFilePath of Array.from(relFilesToUpdate)){
+        if(!zip.files[relFilePath]) continue;
+        const relTxt = await zip.files[relFilePath].async('text');
+        const relDoc = new DOMParser().parseFromString(relTxt, 'application/xml');
+        const rels = relDoc.getElementsByTagName('Relationship');
+        let removedRelEntries = 0;
+        for(let i = rels.length - 1; i >= 0; i--){
+          const r = rels[i];
+          const tgt = r.getAttribute('Target') || '';
+          if(tgt.includes(c.name)){
+            r.parentNode.removeChild(r);
+            removedRelEntries++;
+          }
+        }
+        if(removedRelEntries > 0){
+          zip.file(relFilePath, new XMLSerializer().serializeToString(relDoc));
+          log(`Removed ${removedRelEntries} Relationship(s) in ${relFilePath}`, 'success');
+        }
+      }
+
+      // Finally, delete the image file itself
+      zip.remove(c.path);
+      log(`Deleted image file ${c.path}`, 'success');
+    }
+
+    // finalize
+    log('Generating cleaned PPTX...');
+    const outBlob = await zip.generateAsync({type:'blob'});
+    const outName = selectedFile.name.replace(/\.pptx$/i,'') + '-cleaned.pptx';
+    saveAs(outBlob, outName);
+    log('Done. Download should start. If PowerPoint still reports an error, tell me the file name and I will inspect further.', 'success');
+
+  } catch(err){
+    console.error(err);
+    log('Error: ' + (err && err.message ? err.message : String(err)), 'error');
+    alert('Error: ' + (err && err.message ? err.message : String(err)));
+  } finally {
+    processBtn.disabled = false;
+    processBtn.textContent = 'Remove Watermarks';
+    // remove spinner if present
+    const sp = processBtn.querySelector('.spinner');
+    if(sp) sp.remove();
+  }
+});
+</script>
+</body>
+</html>
