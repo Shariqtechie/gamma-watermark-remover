@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🪄 Gamma Watermark Remover
+<h1>Gamma Watermark Remover</h1>
 
 **A beautifully engineered, ludicrously overdesigned tool to nuke embedded watermarks from PPTX files.**
 
