@@ -34,15 +34,6 @@ It's surprisingly simple logic hiding behind an intricately animated curtain:
 ## 🛠 Setup (If you really want to run it locally)
 Honestly, just use the [Live Page Link](https://shariqtechie.github.io/gamma-watermark-remover/).
 
-But if you are a developer who likes cloning things:
-1. Clone this repository:
-```bash
-git clone https://github.com/yourusername/gamma-watermark-remover.git
-```
-2. Open the folder.
-3. Double-click `index.html`. 
-4. That's it. It’s a static site. No `npm install`, no `build` steps. Enjoy the simplicity.
-
 ## 🤝 Contributing
 Found a watermark that survived the digital crusade?
 Open an issue or a pull request! Let's eradicate them together.
