@@ -8,7 +8,6 @@
 [![UI Status](https://img.shields.io/badge/UI-Overpowered-10b981?style=for-the-badge)](https://github.com)
 [![Logic](https://img.shields.io/badge/Logic-Unbroken-3b82f6?style=for-the-badge)](https://github.com)
 
-It looks like a team of 50 senior engineers spent 3 months building it. In reality, it just unzips your file, hunts down those filthy, recurring watermark images like a digital assassin, and zips it all back up directly in your browser.
 
 [**👇 USE THE LIVE TOOL HERE 👇**](https://shariqtechie.github.io/gamma-watermark-remover/)
 
