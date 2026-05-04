@@ -1,43 +1,138 @@
 <div align="center">
 
-<h1>Gamma Watermark Remover</h1>
+# PPTX Tools
 
-**A beautifully engineered, ludicrously overdesigned tool to nuke embedded watermarks from PPTX files.**
+**A free browser-based PPTX cleaner for removing unwanted repeated embedded layout images from PowerPoint files.**
 
-[![Made with Love](https://img.shields.io/badge/Made%20with-Excessive%20Coffee-8b5cf6?style=for-the-badge)](https://github.com)
-[![UI Status](https://img.shields.io/badge/UI-Overpowered-10b981?style=for-the-badge)](https://github.com)
-[![Logic](https://img.shields.io/badge/Logic-Unbroken-3b82f6?style=for-the-badge)](https://github.com)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Open%20Tool-8b5cf6?style=for-the-badge)](https://pptx-tools.pages.dev/)
+[![Runs Locally](https://img.shields.io/badge/Runs-Locally%20in%20Browser-10b981?style=for-the-badge)](https://pptx-tools.pages.dev/)
+[![No Upload](https://img.shields.io/badge/Files-Not%20Uploaded-3b82f6?style=for-the-badge)](https://pptx-tools.pages.dev/)
 
-
-[**👇 USE THE LIVE TOOL HERE 👇**](https://pptx-tools.pages.dev/)
+[**Use the live tool**](https://pptx-tools.pages.dev/)
 
 </div>
 
 ---
 
-## 🎨 The "Premium" Experience
-Ever used a utility script that looked like it was from 1998? Not this one.
-We packed this bad boy with:
-- **Silky Smooth Animations:** Because waiting 0.2 seconds for a file to process feels longer without a pulsing progress bar.
-- **Glassmorphism:** We learned a new design word and decided to abuse it!
-- **Funny Status Messages:** Watch in awe as the app casually claims to be "Applying quantum entanglement to your PPTX..." and "Hunting down filthy watermarks..." while it simply parses an XML DOM.
-- **Client-Side Processing:** No servers, no data stealing. Everything happens inside your browser. Privacy!
+## What is PPTX Tools?
 
-## 🚀 How It Works
-It's surprisingly simple logic hiding behind an intricately animated curtain:
-1. **Drop it:** Drag your contaminated `.pptx` file into the glowing abyss.
-2. **Process it:** Click "Clean Presentation" and watch the progress bar do a completely fabricated dance to make the tool feel more important than it is.
-3. **Nuke it:** Behind the scenes, `JSZip` opens the presentation, sniffs out tiny embedded images used repeatedly across slides (the classic watermark footprint), rips them out, and patches up the XML relationships.
-4. **Save it:** Boom! A fresh, squeaky-clean presentation downloads automatically.
+PPTX Tools is a small client-side utility that cleans unwanted repeated embedded images from `.pptx` files.
 
-## 🛠 Setup (If you really want to run it locally)
-Honestly, just use the [Live Page Link](https://pptx-tools.pages.dev/).
+Some exported presentations include extra images inside slides, slide layouts, or slide masters. Removing those manually can be annoying, especially when the same asset is repeated across many layouts.
 
-## 🤝 Contributing
-Found a watermark that survived the digital crusade?
-Open an issue or a pull request! Let's eradicate them together.
+This tool scans the internal PPTX structure and removes matching repeated layout assets while trying to preserve the actual slide design and full-slide backgrounds.
 
 ---
+
+## Privacy
+
+Your PPTX file never leaves your device.
+
+The tool runs fully inside your browser. There is no upload server, no account, and no file storage.
+
+---
+
+## Features
+
+- Works directly in the browser
+- No file upload
+- Cleans `.pptx` files locally
+- Detects repeated image hashes
+- Scans:
+  - slides
+  - slide layouts
+  - slide masters
+- Skips full-slide background-like images
+- Downloads a cleaned copy automatically
+- Free and open source
+
+---
+
+## Live Demo
+
+https://pptx-tools.pages.dev/
+
+---
+
+## How it works
+
+A `.pptx` file is basically a zip archive containing XML files and media assets.
+
+PPTX Tools:
+
+1. Opens the `.pptx` file locally using JSZip.
+2. Reads slide, layout, and master relationship files.
+3. Maps image references to their XML traces.
+4. Detects repeated embedded image assets using file hashes.
+5. Filters out full-slide background-like images.
+6. Removes matching unwanted image references.
+7. Rebuilds the `.pptx` file and downloads the cleaned version.
+
+---
+
+## When it is useful
+
+This tool can help when a presentation contains:
+
+- repeated embedded layout images
+- unwanted exported branding assets
+- small repeated images inside slide layouts
+- assets that are difficult to remove manually from PowerPoint
+
+---
+
+## Limitations
+
+This tool may not work for every PPTX file.
+
+It currently focuses on repeated embedded image assets. It may not remove:
+
+- text-based marks
+- shapes drawn directly in XML
+- watermarks baked into full-slide background images
+- locked/protected presentation content
+- unusual PowerPoint export structures
+
+Always check the cleaned file before using it.
+
+---
+
+## Tech Stack
+
+- HTML
+- CSS
+- JavaScript
+- JSZip
+- FileSaver.js
+- Cloudflare Pages
+
+---
+
+## Run locally
+
+Clone the repository and open `index.html` in your browser.
+
+No build step is required.
+
+---
+
+## Contributing
+
+Bug reports and test cases are welcome.
+
+If the tool fails on a specific PPTX structure, open an issue with details about:
+
+- what was expected
+- what happened
+- whether the background changed
+- whether the unwanted image remained
+
+Please avoid uploading private or sensitive presentations publicly.
+
+---
+
 <div align="center">
-  <i>"I spent 90% of the time making the progress bar look cool, and 10% on the core functionality." - The Dev</i>
+
+Made by [Shariqtechie](https://github.com/Shariqtechie)
+
 </div>
