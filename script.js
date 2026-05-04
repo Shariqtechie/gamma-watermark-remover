@@ -1,4 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const homeView = document.getElementById('homeView');
+    const toolView = document.getElementById('toolView');
+    const openWatermarkToolBtn = document.getElementById('openWatermarkTool');
+    const backHomeBtn = document.getElementById('backHomeBtn');
     const dropzone = document.getElementById('dropzone');
     const fileInput = document.getElementById('fileInput');
     const fileInfo = document.getElementById('fileInfo');
@@ -21,6 +25,20 @@ document.addEventListener('DOMContentLoaded', () => {
         'Removing safe watermark traces...',
         'Rebuilding presentation package...'
     ];
+
+    function showHomeView() {
+        resetToInitialState();
+        homeView.classList.remove('hidden');
+        toolView.classList.add('hidden');
+    }
+
+    function showToolView() {
+        homeView.classList.add('hidden');
+        toolView.classList.remove('hidden');
+    }
+
+    openWatermarkToolBtn.addEventListener('click', showToolView);
+    backHomeBtn.addEventListener('click', showHomeView);
 
     dropzone.addEventListener('click', () => fileInput.click());
 
@@ -86,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fileInfo.style.display = 'none';
         dropzone.style.display = 'block';
         processBtn.style.display = 'block';
-        processBtn.textContent = 'Clean Presentation';
+        processBtn.textContent = 'Remove Watermark';
         processBtn.disabled = true;
         progressArea.classList.remove('active');
         progressBar.style.width = '0%';
@@ -462,7 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Fallback for Gamma exports that use unique files but identical bottom-right layout placement.
+        // Fallback for exports that use unique files but identical bottom-right layout placement.
         if (candidateMediaPaths.size === 0) {
             for (const media of mediaMap.values()) {
                 if (media.size < 500 || media.size > 350000) continue;

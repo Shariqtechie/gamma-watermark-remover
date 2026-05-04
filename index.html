@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gamma Watermark Remover</title>
+    <title>pptx.tools</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -17,10 +17,24 @@
     <div id="canvas-container"></div>
 
     <main class="container">
-        <section class="card">
+        <section class="card view" id="homeView">
             <div class="header">
-                <h1>Gamma Watermark Remover</h1>
-                <p>Obliterate embedded watermarks from your presentations with surgical precision. Powered by unnecessarily excessive UI animations.</p>
+                <h1>pptx.tools</h1>
+                <p>Useful PPTX tools in one place. Start with the watermark remover below.</p>
+            </div>
+
+            <button class="tool-launch" id="openWatermarkTool" type="button">
+                <span class="tool-launch-label">Watermark Remover</span>
+                <span class="tool-launch-subtext">Open the PPTX watermark remover tool</span>
+            </button>
+        </section>
+
+        <section class="card view hidden" id="toolView">
+            <button class="back-link" id="backHomeBtn" type="button">&larr; Back to tools</button>
+
+            <div class="tool-heading">
+                <h2>Watermark Remover</h2>
+                <p>Upload a `.pptx` file to remove repeated watermark assets.</p>
             </div>
 
             <div class="dropzone" id="dropzone">
@@ -46,7 +60,7 @@
                 </div>
             </div>
 
-            <button class="btn" id="processBtn" disabled type="button">Clean Presentation</button>
+            <button class="btn" id="processBtn" disabled type="button">Remove Watermark</button>
         </section>
     </main>
 
