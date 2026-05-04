@@ -9,7 +9,7 @@
 [![Logic](https://img.shields.io/badge/Logic-Unbroken-3b82f6?style=for-the-badge)](https://github.com)
 
 
-[**👇 USE THE LIVE TOOL HERE 👇**](https://shariqtechie.github.io/gamma-watermark-remover/)
+[**👇 USE THE LIVE TOOL HERE 👇**](https://pptx-tools.pages.dev/)
 
 </div>
 
@@ -31,7 +31,7 @@ It's surprisingly simple logic hiding behind an intricately animated curtain:
 4. **Save it:** Boom! A fresh, squeaky-clean presentation downloads automatically.
 
 ## 🛠 Setup (If you really want to run it locally)
-Honestly, just use the [Live Page Link](https://shariqtechie.github.io/gamma-watermark-remover/).
+Honestly, just use the [Live Page Link](https://pptx-tools.pages.dev/).
 
 ## 🤝 Contributing
 Found a watermark that survived the digital crusade?
