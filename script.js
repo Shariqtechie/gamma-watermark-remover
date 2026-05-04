@@ -12,35 +12,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let selectedFile = null;
 
-    // Fun messages to display while "processing" to make it look like a 50-person team effort
-    const funnyMessages = [
-        "Waking up the hamsters in the server room...",
-        "Applying quantum entanglement to your PPTX...",
-        "Hunting down filthy watermarks...",
-        "Executing Operation: Clean Slate...",
-        "Bribing MS PowerPoint with virtual coffee...",
-        "Nuking embedded images from orbit...",
-        "Scrubbing slides with digital soap...",
-        "Deleting the evidence...",
-        "Sprinkling fairy dust on XML schemas...",
-        "Reticulating splines...",
-        "Zipping it all back together...",
-        "Baking the final presentation..."
+    const statusMessages = [
+        'Reading PPTX package...',
+        'Mapping slide and layout relationships...',
+        'Fingerprinting embedded images...',
+        'Checking slide layouts and masters...',
+        'Finding repeated watermark assets...',
+        'Removing safe watermark traces...',
+        'Rebuilding presentation package...'
     ];
 
-    // --- DOM Event Listeners ---
-
-    // Click on dropzone opens native file picker
     dropzone.addEventListener('click', () => fileInput.click());
 
-    // File input change
     fileInput.addEventListener('change', (e) => {
         if (e.target.files.length > 0) {
             handleFileSelect(e.target.files[0]);
         }
     });
 
-    // Drag and Drop Events
     dropzone.addEventListener('dragover', (e) => {
         e.preventDefault();
         dropzone.classList.add('dragover');
@@ -59,292 +48,494 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Remove selected file
     removeFileBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        selectedFile = null;
-        fileInput.value = '';
-        fileInfo.classList.remove('active');
-        fileInfo.style.display = ''; // Clear any inline non-flex styles
-        dropzone.style.display = 'block';
-        processBtn.textContent = 'Clean Presentation';
-        processBtn.disabled = true;
-        progressArea.classList.remove('active');
+        resetToInitialState();
     });
 
-    // Process button click
     processBtn.addEventListener('click', async () => {
         if (!selectedFile) return;
 
-        // UI transitions
         dropzone.style.display = 'none';
         fileInfo.style.display = 'none';
         processBtn.style.display = 'none';
         progressArea.classList.add('active');
 
-        await startFakeProgressAndProcess();
+        await startProgressAndProcess();
     });
-
-    // --- Core Functions ---
 
     function handleFileSelect(file) {
         if (!file.name.toLowerCase().endsWith('.pptx')) {
-            alert("Whoops! We only eat .pptx files here. Try again!");
+            alert('Please select a .pptx file.');
             return;
         }
+
         selectedFile = file;
         fileNameDisplay.textContent = file.name;
         dropzone.style.display = 'none';
+        fileInfo.style.display = 'flex';
         fileInfo.classList.add('active');
         processBtn.disabled = false;
+        progressArea.classList.remove('active');
+    }
+
+    function resetToInitialState() {
+        selectedFile = null;
+        fileInput.value = '';
+        fileInfo.classList.remove('active');
+        fileInfo.style.display = 'none';
+        dropzone.style.display = 'block';
+        processBtn.style.display = 'block';
+        processBtn.textContent = 'Clean Presentation';
+        processBtn.disabled = true;
+        progressArea.classList.remove('active');
+        progressBar.style.width = '0%';
+        progressBar.style.background = '';
+        funMessage.textContent = 'Preparing scan...';
+        funMessage.style.color = '';
     }
 
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    async function startFakeProgressAndProcess() {
-        // We will run the fake progress bar concurrently with the actual processing.
-        // The actual zip processing is usually instant, but we want to show off the UI.
-
+    async function startProgressAndProcess() {
         let progress = 0;
         let isProcessingDone = false;
         let pResult = null;
         let pError = null;
 
-        // Start actual processing in background
-        processPPTX().then(blob => {
-            pResult = blob;
-            isProcessingDone = true;
-        }).catch(err => {
-            pError = err;
-            isProcessingDone = true;
-        });
+        processPPTX()
+            .then(result => {
+                pResult = result;
+                isProcessingDone = true;
+            })
+            .catch(err => {
+                pError = err;
+                isProcessingDone = true;
+            });
 
-        // UI "Fake" complex loading sequences
-        for (let i = 0; i < funnyMessages.length; i++) {
-            if (isProcessingDone && i > 3 && progress >= 80) {
-                // Wait for the bar to at least show something before jumping to 100%
-                break;
+        for (let i = 0; i < statusMessages.length; i++) {
+            funMessage.textContent = statusMessages[i];
+            const target = Math.min(92, Math.round(((i + 1) / statusMessages.length) * 92));
+
+            while (progress < target) {
+                progress += 2;
+                progressBar.style.width = `${Math.min(progress, target)}%`;
+                await sleep(35);
             }
 
-            funMessage.textContent = funnyMessages[i];
-
-            // Random chunk of progress
-            let targetProgress = Math.min(progress + (Math.random() * 15 + 5), 95);
-
-            // Increment progress smoothly over UI ticks
-            while (progress < targetProgress) {
-                progress += 1.5;
-                if (progress > targetProgress) progress = targetProgress;
-                progressBar.style.width = `${progress}%`;
-                await sleep(30);
-            }
-
-            await sleep(400 + Math.random() * 600); // Wait on the message text
+            if (isProcessingDone && progress >= 70) break;
+            await sleep(220);
         }
 
-        // Wait for actual work to finish if it somehow took longer than our fake animation
         while (!isProcessingDone) {
-            funMessage.textContent = "Almost there, convincing the bits to align...";
-            await sleep(500);
+            funMessage.textContent = 'Finalizing cleaned PPTX...';
+            await sleep(350);
         }
 
         if (pError) {
-            funMessage.textContent = "Mission Failed: " + pError.message;
-            funMessage.style.color = "var(--error-color)";
-            progressBar.style.background = "var(--error-color)";
+            funMessage.textContent = `Failed: ${pError.message}`;
+            funMessage.style.color = 'var(--error-color)';
+            progressBar.style.background = 'var(--error-color)';
             processBtn.style.display = 'block';
             processBtn.textContent = 'Retry';
             processBtn.disabled = false;
             return;
         }
 
-        if (pResult === 'no_watermarks') {
-            funMessage.textContent = "Clean! No watermarks detected! 🎉";
-            progressBar.style.width = `100%`;
-            progressBar.style.background = "var(--success-color)";
+        progressBar.style.width = '100%';
 
-            // Reset UI after a few seconds
-            setTimeout(() => {
-                progressArea.classList.remove('active');
-                fileInfo.style.display = 'flex';
-                processBtn.style.display = 'block';
-                processBtn.textContent = 'Clean Presentation';
-                progressBar.style.width = '0%';
-                progressBar.style.background = '';
-                funMessage.style.color = '';
-            }, 3000);
+        if (pResult.status === 'no_watermarks') {
+            funMessage.textContent = 'No safe watermark candidates detected.';
+            funMessage.style.color = 'var(--error-color)';
+            progressBar.style.background = 'var(--error-color)';
+
+            processBtn.style.display = 'block';
+            processBtn.textContent = 'Scan Again';
+            processBtn.disabled = false;
+            fileInfo.style.display = 'flex';
             return;
         }
 
-        // Processing success
-        funMessage.textContent = "Done! Downloading masterpiece... 🚀";
-        funMessage.style.color = "var(--success-color)";
-        progressBar.style.width = `100%`;
-        progressBar.style.background = "var(--success-color)";
+        funMessage.textContent = `Done. Removed ${pResult.removedImages} image asset(s) and ${pResult.removedShapes} XML trace(s).`;
+        funMessage.style.color = 'var(--success-color)';
+        progressBar.style.background = 'var(--success-color)';
 
-        // Download file
-        saveAs(pResult, selectedFile.name.replace('.pptx', '-cleaned.pptx'));
+        saveAs(pResult.blob, selectedFile.name.replace(/\.pptx$/i, '-cleaned.pptx'));
 
-        // Reset UI eventually
         setTimeout(() => {
-            progressArea.classList.remove('active');
-            dropzone.style.display = 'block';
-            fileInput.value = '';
-            selectedFile = null;
-            processBtn.style.display = 'block';
-            processBtn.disabled = true;
-            processBtn.textContent = 'Clean Presentation';
-            progressBar.style.width = '0%';
-            progressBar.style.background = '';
-            funMessage.style.color = '';
-        }, 3000);
+            resetToInitialState();
+        }, 2500);
     }
 
-    // --- Original Core Logic Overhauled for robustness ---
-    async function processPPTX() {
-        const zip = await JSZip.loadAsync(await selectedFile.arrayBuffer());
+    function localName(node) {
+        return (node.localName || node.nodeName || '').toLowerCase();
+    }
 
-        const mediaFiles = Object.keys(zip.files)
-            .filter(n => /^ppt\/media\//i.test(n) && /\.(png|jpe?g|gif|webp|svg)$/i.test(n));
+    function getAttr(el, names) {
+        for (const name of names) {
+            const value = el.getAttribute(name);
+            if (value !== null && value !== '') return value;
+        }
+        return null;
+    }
 
-        const relFiles = Object.keys(zip.files).filter(n => n.endsWith('.xml.rels'));
+    function parentXmlPathFromRels(relPath) {
+        return relPath.replace('/_rels/', '/').replace(/\.rels$/i, '');
+    }
 
-        const usageCount = {};
+    function normalizeTarget(relPath, target) {
+        if (!target) return '';
 
-        for (const relPath of relFiles) {
-            const txt = await zip.files[relPath].async('text');
-            const relXml = new DOMParser().parseFromString(txt, 'application/xml');
-            const rels = relXml.getElementsByTagName('Relationship');
+        if (target.startsWith('/')) {
+            return target.slice(1).replace(/\\/g, '/');
+        }
 
-            for (let i = 0; i < rels.length; i++) {
-                const target = rels[i].getAttribute('Target') || '';
-                for (const file of mediaFiles) {
-                    const name = file.split('/').pop();
-                    if (target.includes(name)) {
-                        usageCount[name] = (usageCount[name] || 0) + 1;
-                    }
+        let base = relPath.split('/');
+        base.pop();
+
+        if (base[base.length - 1] === '_rels') {
+            base.pop();
+        }
+
+        const parts = [...base, ...target.replace(/\\/g, '/').split('/')];
+        const clean = [];
+
+        for (const part of parts) {
+            if (!part || part === '.') continue;
+            if (part === '..') clean.pop();
+            else clean.push(part);
+        }
+
+        return clean.join('/');
+    }
+
+    async function sha1Hex(uint8) {
+        const digest = await crypto.subtle.digest('SHA-1', uint8);
+        return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function findImageContainersByRelId(xmlDoc, relId) {
+        const containers = [];
+        const all = Array.from(xmlDoc.getElementsByTagName('*'));
+
+        for (const el of all) {
+            const tag = localName(el);
+            if (tag !== 'blip' && tag !== 'svgblip') continue;
+
+            const embed = getAttr(el, ['r:embed', 'embed']);
+            const link = getAttr(el, ['r:link', 'link']);
+
+            if (embed !== relId && link !== relId) continue;
+
+            let parent = el;
+            while (parent && parent.parentNode) {
+                const pTag = localName(parent);
+                if (['pic', 'sp', 'graphicframe', 'bg', 'grpSp'.toLowerCase()].includes(pTag)) break;
+                parent = parent.parentNode;
+            }
+
+            if (parent && parent.parentNode && !containers.includes(parent)) {
+                containers.push(parent);
+            }
+        }
+
+        return containers;
+    }
+
+    function getContainerInfo(container) {
+        const info = {
+            x: null,
+            y: null,
+            cx: null,
+            cy: null,
+            hasHyperlink: false,
+            shapeName: '',
+            shapeId: ''
+        };
+
+        const all = Array.from(container.getElementsByTagName('*'));
+
+        for (const el of all) {
+            const tag = localName(el);
+
+            if (tag === 'off') {
+                info.x = Number(el.getAttribute('x'));
+                info.y = Number(el.getAttribute('y'));
+            }
+
+            if (tag === 'ext') {
+                const cx = Number(el.getAttribute('cx'));
+                const cy = Number(el.getAttribute('cy'));
+                if (Number.isFinite(cx) && Number.isFinite(cy)) {
+                    info.cx = cx;
+                    info.cy = cy;
+                    break;
                 }
             }
         }
 
-        const candidates = [];
+        for (const el of all) {
+            const tag = localName(el);
+            if (tag === 'hlinkclick' || tag === 'hlinkhover') {
+                info.hasHyperlink = true;
+            }
+            if (tag === 'cnvpr') {
+                info.shapeName = el.getAttribute('name') || '';
+                info.shapeId = el.getAttribute('id') || '';
+            }
+        }
+
+        return info;
+    }
+
+    function isFullSlideLike(trace) {
+        const slideW = 14630400;
+        const slideH = 8229600;
+
+        if (!Number.isFinite(trace.cx) || !Number.isFinite(trace.cy)) return false;
+
+        return trace.x === 0 && trace.y === 0 && trace.cx >= slideW * 0.85 && trace.cy >= slideH * 0.85;
+    }
+
+    function isBottomRightLike(trace) {
+        const slideW = 14630400;
+        const slideH = 8229600;
+
+        if (!Number.isFinite(trace.x) || !Number.isFinite(trace.y)) return false;
+
+        return trace.x > slideW * 0.65 && trace.y > slideH * 0.70;
+    }
+
+    function isWatermarkLikeTrace(trace, parentXmlPath) {
+        if (isFullSlideLike(trace)) return false;
+
+        const inTemplate = /ppt\/(slideLayouts|slideMasters)\//i.test(parentXmlPath);
+        const smallShape = Number.isFinite(trace.cx) && Number.isFinite(trace.cy)
+            ? trace.cx < 4000000 && trace.cy < 1200000
+            : true;
+
+        return (
+            trace.hasHyperlink ||
+            isBottomRightLike(trace) ||
+            (inTemplate && smallShape)
+        );
+    }
+
+    function removeContainers(xmlDoc, relIds) {
+        let removed = 0;
+
+        for (const relId of relIds) {
+            const containers = findImageContainersByRelId(xmlDoc, relId);
+            for (const container of containers) {
+                if (container.parentNode) {
+                    container.parentNode.removeChild(container);
+                    removed++;
+                }
+            }
+        }
+
+        return removed;
+    }
+
+    function removeRelationshipNodes(relXml, relIds) {
+        let removed = 0;
+        const rels = Array.from(relXml.getElementsByTagName('Relationship'));
+
+        for (const rel of rels) {
+            const id = rel.getAttribute('Id');
+            if (relIds.has(id) && rel.parentNode) {
+                rel.parentNode.removeChild(rel);
+                removed++;
+            }
+        }
+
+        return removed;
+    }
+
+    async function processPPTX() {
+        const inputBuffer = await selectedFile.arrayBuffer();
+        const zip = await JSZip.loadAsync(inputBuffer);
+
+        const zipPaths = Object.keys(zip.files);
+        const mediaFiles = zipPaths.filter(path =>
+            /^ppt\/media\//i.test(path) && /\.(png|jpe?g|gif|webp|svg|emf|wmf)$/i.test(path)
+        );
+        const relFiles = zipPaths.filter(path => /\.xml\.rels$/i.test(path));
+
+        const mediaMap = new Map();
+        const mediaByHash = new Map();
 
         for (const path of mediaFiles) {
-            const arr = await zip.files[path].async('uint8array');
-            const size = arr.length;
-            const name = path.split('/').pop();
+            const bytes = await zip.files[path].async('uint8array');
+            const hash = await sha1Hex(bytes);
+            const item = {
+                path,
+                name: path.split('/').pop(),
+                size: bytes.length,
+                hash,
+                refs: []
+            };
 
-            if (size >= 500 && size <= 100000 && (usageCount[name] || 0) >= 3) {
-                candidates.push({ path, name });
+            mediaMap.set(path, item);
+            if (!mediaByHash.has(hash)) mediaByHash.set(hash, []);
+            mediaByHash.get(hash).push(item);
+        }
+
+        const relationships = [];
+
+        for (const relPath of relFiles) {
+            const relText = await zip.files[relPath].async('text');
+            const relXml = new DOMParser().parseFromString(relText, 'application/xml');
+            const rels = Array.from(relXml.getElementsByTagName('Relationship'));
+            const parentXmlPath = parentXmlPathFromRels(relPath);
+            const parentXmlExists = Boolean(zip.files[parentXmlPath]);
+            let parentXmlDoc = null;
+
+            if (parentXmlExists) {
+                const parentXmlText = await zip.files[parentXmlPath].async('text');
+                parentXmlDoc = new DOMParser().parseFromString(parentXmlText, 'application/xml');
+            }
+
+            for (const rel of rels) {
+                const id = rel.getAttribute('Id');
+                const target = rel.getAttribute('Target') || '';
+                const normalizedTarget = normalizeTarget(relPath, target);
+                const media = mediaMap.get(normalizedTarget);
+
+                if (!media) continue;
+
+                const containers = parentXmlDoc ? findImageContainersByRelId(parentXmlDoc, id) : [];
+                const traces = containers.map(container => getContainerInfo(container));
+
+                const ref = {
+                    relPath,
+                    parentXmlPath,
+                    id,
+                    target,
+                    mediaPath: normalizedTarget,
+                    traces
+                };
+
+                media.refs.push(ref);
+                relationships.push(ref);
             }
         }
 
-        if (candidates.length === 0) {
-            return 'no_watermarks';
-        }
+        const candidateMediaPaths = new Set();
+        const candidateHashes = [];
 
-        function removeAllImageRefs(xmlDoc, relId) {
-            let removed = 0;
-            const all = xmlDoc.getElementsByTagName('*');
+        for (const [hash, items] of mediaByHash.entries()) {
+            const totalRefs = items.reduce((sum, item) => sum + item.refs.length, 0);
+            const totalSizeOk = items.every(item => item.size >= 500 && item.size <= 350000);
+            const appearsRepeatedByHash = items.length >= 3 || totalRefs >= 3;
 
-            for (let i = 0; i < all.length; i++) {
-                const el = all[i];
-                const tag = (el.localName || '').toLowerCase();
+            if (!totalSizeOk || !appearsRepeatedByHash) continue;
 
-                if (tag === 'blip') {
-                    const embed = el.getAttribute('r:embed') || el.getAttribute('embed');
-                    if (embed === relId) {
-                        let parent = el;
-                        while (parent && parent.parentNode) {
-                            const pTag = (parent.localName || '').toLowerCase();
-                            if (['pic', 'sp', 'graphicframe', 'bg'].includes(pTag)) break;
-                            parent = parent.parentNode;
-                        }
-                        if (parent && parent.parentNode) {
-                            parent.parentNode.removeChild(parent);
-                            removed++;
-                        }
+            let safeWatermarkTraceCount = 0;
+            let fullSlideTraceCount = 0;
+            let templateRefCount = 0;
+
+            for (const item of items) {
+                for (const ref of item.refs) {
+                    if (/ppt\/(slideLayouts|slideMasters)\//i.test(ref.parentXmlPath)) {
+                        templateRefCount++;
+                    }
+
+                    if (ref.traces.length === 0 && /\.svg$/i.test(item.path)) {
+                        safeWatermarkTraceCount++;
+                    }
+
+                    for (const trace of ref.traces) {
+                        if (isFullSlideLike(trace)) fullSlideTraceCount++;
+                        if (isWatermarkLikeTrace(trace, ref.parentXmlPath)) safeWatermarkTraceCount++;
                     }
                 }
             }
 
-            return removed;
+            const isCandidate = safeWatermarkTraceCount > 0 && fullSlideTraceCount === 0 && templateRefCount > 0;
+
+            if (isCandidate) {
+                candidateHashes.push(hash);
+                for (const item of items) candidateMediaPaths.add(item.path);
+            }
         }
 
-        function nukeBrokenImageContainers(xmlDoc) {
-            let removed = 0;
-            const all = xmlDoc.getElementsByTagName('*');
+        // Fallback for Gamma exports that use unique files but identical bottom-right layout placement.
+        if (candidateMediaPaths.size === 0) {
+            for (const media of mediaMap.values()) {
+                if (media.size < 500 || media.size > 350000) continue;
 
-            for (let i = 0; i < all.length; i++) {
-                const el = all[i];
-                const tag = (el.localName || '').toLowerCase();
-
-                if (tag === 'pic') {
-                    const blips = el.getElementsByTagName('*');
-                    let hasValidImage = false;
-
-                    for (let j = 0; j < blips.length; j++) {
-                        const b = blips[j];
-                        if ((b.localName || '').toLowerCase() === 'blip') {
-                            const embed = b.getAttribute('r:embed');
-                            if (embed && embed.trim() !== '') {
-                                hasValidImage = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (!hasValidImage) {
-                        if (el.parentNode) {
-                            el.parentNode.removeChild(el);
-                            removed++;
-                        }
+                for (const ref of media.refs) {
+                    if (!/ppt\/(slideLayouts|slideMasters)\//i.test(ref.parentXmlPath)) continue;
+                    if (ref.traces.some(trace => isWatermarkLikeTrace(trace, ref.parentXmlPath))) {
+                        candidateMediaPaths.add(media.path);
                     }
                 }
             }
-
-            return removed;
         }
 
-        for (const c of candidates) {
-            for (const relPath of relFiles) {
-                const txt = await zip.files[relPath].async('text');
-                const relXml = new DOMParser().parseFromString(txt, 'application/xml');
-                const rels = relXml.getElementsByTagName('Relationship');
+        if (candidateMediaPaths.size === 0) {
+            console.info('No safe watermark candidates found.', { mediaMap, relationships });
+            return { status: 'no_watermarks' };
+        }
 
-                for (let i = rels.length - 1; i >= 0; i--) {
-                    const r = rels[i];
-                    const target = r.getAttribute('Target') || '';
+        console.info('Watermark candidate image paths:', Array.from(candidateMediaPaths));
+        console.info('Watermark candidate hashes:', candidateHashes);
 
-                    if (target.includes(c.name)) {
-                        const relId = r.getAttribute('Id');
+        const relIdsByRelFile = new Map();
+        const relIdsByParentXml = new Map();
 
-                        const parentXmlPath = relPath
-                            .replace('/_rels', '')
-                            .replace('.rels', '');
+        for (const ref of relationships) {
+            if (!candidateMediaPaths.has(ref.mediaPath)) continue;
 
-                        if (zip.files[parentXmlPath]) {
-                            const xmlTxt = await zip.files[parentXmlPath].async('text');
-                            const xmlDoc = new DOMParser().parseFromString(xmlTxt, 'application/xml');
+            if (!relIdsByRelFile.has(ref.relPath)) relIdsByRelFile.set(ref.relPath, new Set());
+            relIdsByRelFile.get(ref.relPath).add(ref.id);
 
-                            removeAllImageRefs(xmlDoc, relId);
-                            nukeBrokenImageContainers(xmlDoc);
+            if (!relIdsByParentXml.has(ref.parentXmlPath)) relIdsByParentXml.set(ref.parentXmlPath, new Set());
+            relIdsByParentXml.get(ref.parentXmlPath).add(ref.id);
+        }
 
-                            zip.file(parentXmlPath, new XMLSerializer().serializeToString(xmlDoc));
-                        }
+        let removedShapes = 0;
+        let removedRelationships = 0;
 
-                        r.parentNode.removeChild(r);
-                    }
-                }
+        for (const [parentXmlPath, relIds] of relIdsByParentXml.entries()) {
+            if (!zip.files[parentXmlPath]) continue;
 
-                zip.file(relPath, new XMLSerializer().serializeToString(relXml));
+            const xmlText = await zip.files[parentXmlPath].async('text');
+            const xmlDoc = new DOMParser().parseFromString(xmlText, 'application/xml');
+            removedShapes += removeContainers(xmlDoc, relIds);
+            zip.file(parentXmlPath, new XMLSerializer().serializeToString(xmlDoc));
+        }
+
+        for (const [relPath, relIds] of relIdsByRelFile.entries()) {
+            if (!zip.files[relPath]) continue;
+
+            const relText = await zip.files[relPath].async('text');
+            const relXml = new DOMParser().parseFromString(relText, 'application/xml');
+            removedRelationships += removeRelationshipNodes(relXml, relIds);
+            zip.file(relPath, new XMLSerializer().serializeToString(relXml));
+        }
+
+        for (const mediaPath of candidateMediaPaths) {
+            if (zip.files[mediaPath]) {
+                zip.remove(mediaPath);
             }
-
-            zip.remove(c.path);
         }
 
-        return await zip.generateAsync({ type: 'blob' });
+        const blob = await zip.generateAsync({
+            type: 'blob',
+            compression: 'DEFLATE',
+            compressionOptions: { level: 6 }
+        });
+
+        return {
+            status: 'cleaned',
+            blob,
+            removedImages: candidateMediaPaths.size,
+            removedShapes,
+            removedRelationships
+        };
     }
 });

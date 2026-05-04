@@ -29,13 +29,18 @@ body {
   padding: 20px;
   position: relative;
   overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .container {
   width: 100%;
   max-width: 600px;
   perspective: 1000px;
-  margin: auto;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  margin: 0 auto;
+  padding: 32px 0;
   z-index: 10;
 }
 
@@ -48,12 +53,11 @@ body {
   padding: 40px;
   text-align: center;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-  transform: translateY(0);
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+  transition: box-shadow 0.4s ease;
+  width: 100%;
 }
 
 .card:hover {
-  transform: translateY(-5px);
   box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 0 20px var(--accent-glow);
 }
 
@@ -361,8 +365,7 @@ p {
 .footer {
   width: 100%;
   text-align: center;
-  padding-top: 30px;
-  padding-bottom: 10px;
+  padding-bottom: 20px;
   z-index: 10;
 }
 
@@ -387,6 +390,18 @@ p {
   fill: currentColor;
 }
 
+#canvas-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2;
+  pointer-events: none;
+  /* Let pointer events pass through to UI */
+}
+
+
 @keyframes float {
 
   0%,
@@ -400,5 +415,25 @@ p {
 
   66% {
     transform: translate(-20px, 20px) scale(0.9);
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    padding: 16px;
+  }
+
+  .container {
+    align-items: flex-start;
+    padding: 20px 0;
+  }
+
+  .card {
+    padding: 28px 20px;
+    border-radius: 20px;
+  }
+
+  h1 {
+    font-size: 28px;
   }
 }

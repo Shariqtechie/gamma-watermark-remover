@@ -4,81 +4,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gamma Watermark Remover | Pro Edition</title>
-    <!-- Modern Google Font -->
+    <title>Gamma Watermark Remover</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- External CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-
-    <!-- Animated Background Shapes -->
     <div class="bg-shape shape1"></div>
     <div class="bg-shape shape2"></div>
+    <div id="canvas-container"></div>
 
-    <div class="container">
-        <div class="card">
-
+    <main class="container">
+        <section class="card">
             <div class="header">
-                <h1>Gamma Clean</h1>
-                <p>Obliterate embedded watermarks from your presentations with surgical precision. Powered by
-                    unnecessarily excessive UI animations.</p>
+                <h1>Gamma Watermark Remover</h1>
+                <p>Obliterate embedded watermarks from your presentations with surgical precision. Powered by unnecessarily excessive UI animations.</p>
             </div>
 
-            <!-- Dropzone Area -->
             <div class="dropzone" id="dropzone">
-                <div class="dropzone-icon">✨</div>
-                <div class="dropzone-text">Drag & Drop your .pptx here</div>
+                <div class="dropzone-icon" aria-hidden="true">&uarr;</div>
+                <div class="dropzone-text">Drag and drop your .pptx file</div>
                 <div class="dropzone-subtext">or click to browse</div>
                 <input type="file" id="fileInput" accept=".pptx">
             </div>
 
-            <!-- Selected File Display -->
             <div class="file-info" id="fileInfo">
                 <span class="file-name" id="fileName">presentation.pptx</span>
-                <button class="file-remove" id="removeFile" title="Remove File">
-                    <!-- Simple SVG X icon -->
+                <button class="file-remove" id="removeFile" title="Remove file" type="button">
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M13 1L1 13M1 1L13 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" />
+                        <path d="M13 1L1 13M1 1L13 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                 </button>
             </div>
 
-            <!-- Fake Progress / Status Area -->
             <div class="progress-area" id="progressArea">
-                <div class="fun-message" id="funMessage">Initializing photon blasters...</div>
+                <div class="fun-message" id="funMessage">Preparing scan...</div>
                 <div class="progress-bar-container">
                     <div class="progress-bar" id="progressBar"></div>
                 </div>
             </div>
 
-            <!-- Action Button -->
-            <button class="btn" id="processBtn" disabled>Clean Presentation</button>
+            <button class="btn" id="processBtn" disabled type="button">Clean Presentation</button>
+        </section>
+    </main>
 
-        </div>
-    </div>
-
-    <!-- Developer Footer -->
-    <div class="footer">
-        <a href="https://github.com/Shariqtechie" target="_blank" class="github-link">
-            <svg class="github-icon" viewBox="0 0 24 24">
-                <path
-                    d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+    <footer class="footer">
+        <a href="https://github.com/Shariqtechie" target="_blank" class="github-link" rel="noopener noreferrer">
+            <svg class="github-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
             </svg>
             Built by Shariqtechie
         </a>
-    </div>
+    </footer>
 
-    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
-    <!-- Core Application Logic -->
     <script src="script.js"></script>
-
 </body>
 
 </html>
