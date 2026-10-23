@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gamma Watermark Remover: delete "Made with Gamma" from PPTX | Ungamma</title>
+<meta name="description" content="Remove the Made with Gamma watermark from your exported PPTX in seconds. Free, runs 100% in your browser, nothing is uploaded. Open source.">
+<link rel="canonical" href="https://ungamma.pages.dev/">
+<meta name="theme-color" content="#efebff">
+<link rel="icon" href="favicon/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon/favicon.ico" sizes="any">
+<link rel="icon" href="favicon/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="favicon/apple-touch-icon.png">
+<link rel="manifest" href="favicon/site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Ungamma">
+<meta property="og:title" content="Your slides, minus the Gamma badge.">
+<meta property="og:description" content="Free Gamma watermark remover. Drop your PPTX, get a clean copy. Runs in your browser, nothing is uploaded.">
+<meta property="og:url" content="https://ungamma.pages.dev/">
+<meta property="og:image" content="https://ungamma.pages.dev/assets/img/og-image.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Your slides, minus the Gamma badge.">
+<meta name="twitter:description" content="Free Gamma watermark remover. 100% in your browser, nothing uploaded.">
+<meta name="twitter:image" content="https://ungamma.pages.dev/assets/img/og-image.png">
+<link rel="preload" href="assets/fonts/bricolage-grotesque-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/style.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"WebApplication","name":"Ungamma: Gamma Watermark Remover","url":"https://ungamma.pages.dev/","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}},
+{"@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"How do I remove the Gamma watermark from a PowerPoint?","acceptedAnswer":{"@type":"Answer","text":"Export your deck from Gamma as PPTX, drop it into Ungamma, and download the cleaned copy."}},
+{"@type":"Question","name":"Is it safe? Do you upload my presentation?","acceptedAnswer":{"@type":"Answer","text":"No. Your file is processed entirely in your browser and never sent anywhere."}},
+{"@type":"Question","name":"Will it break my slide design?","acceptedAnswer":{"@type":"Answer","text":"It skips full-slide background images and only removes repeated badge assets. Your original file is never modified."}}]}]}
+</script>
+</head>
+<body>
+<div class="wrap">
+  <header class="nav">
+    <a class="logo" href="/" aria-label="Ungamma home"><img src="favicon/favicon.svg" alt="" width="32" height="32">ungamma</a>
+    <a class="gh" href="https://github.com/Shariqtechie/gamma-watermark-remover" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+      Star <span class="star">★</span> <span data-stars>on GitHub</span>
+    </a>
+  </header>
+
+  <main class="hero">
+    <div>
+      <h1>Your slides, minus the Gamma badge.</h1>
+      <p class="lede">Drop the .pptx you exported from Gamma. Get a clean copy back in seconds. Your file never leaves this tab.</p>
+      <div class="facts"><span>Free</span><span>No upload</span><span>No signup</span><span>Open source</span></div>
+    </div>
+
+    <div class="stage" id="stage" data-state="idle">
+      <div class="slide" id="slide" role="button" tabindex="0" aria-label="Choose a .pptx file">
+        <div class="s-eyebrow"></div>
+        <div class="s-title">Q3 growth plan</div>
+        <div class="s-line"></div><div class="s-line"></div>
+        <div class="s-bars"><i></i><i></i><i></i><i></i></div>
+        <div class="badge"><b>✦</b>Made with Gamma</div>
+        <div class="sweep"></div>
+        <div class="drop-pill">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M6 10l6-6 6 6M4 20h16"/></svg>
+          Drop your .pptx here
+        </div>
+      </div>
+      <input type="file" id="fileInput" accept=".pptx" hidden>
+
+      <div class="dock" aria-live="polite">
+        <div class="panel" data-show="idle">
+          <p class="hint grow">Drag a file onto the slide, or</p>
+          <button class="btn" id="browseBtn" type="button">Choose file</button>
+        </div>
+        <div class="panel" data-show="ready">
+          <div class="grow"><div class="fname" id="fileName">deck.pptx</div><div class="hint" id="fileSize"></div></div>
+          <button class="btn ghost" id="clearBtn" type="button">Change</button>
+          <button class="btn" id="goBtn" type="button">Remove watermark</button>
+        </div>
+        <div class="panel" data-show="scanning">
+          <div class="grow"><div class="status" id="statusText">Reading deck...</div><div class="bar"><i id="barFill"></i></div></div>
+        </div>
+        <div class="panel" data-show="done">
+          <div class="grow"><div class="status ok" id="doneText">Clean copy downloaded.</div><div class="stats" id="stats"></div></div>
+          <button class="btn ghost" id="againDl" type="button">Download again</button>
+          <button class="btn" id="anotherBtn" type="button">Clean another</button>
+          <div class="nudge">
+            <span><b>Did it work?</b> A GitHub star helps other people find this.</span>
+            <a class="btn pink" href="https://github.com/Shariqtechie/gamma-watermark-remover" target="_blank" rel="noopener">★ Star on GitHub</a>
+          </div>
+        </div>
+        <div class="panel" data-show="empty">
+          <div class="grow"><div class="status bad">No Gamma badge found in this file.</div><div class="hint">It may not be a Gamma export, or the badge is baked into a background image. <a href="https://github.com/Shariqtechie/gamma-watermark-remover/issues" target="_blank" rel="noopener">Report it</a>.</div></div>
+          <button class="btn" id="emptyBtn" type="button">Try another file</button>
+        </div>
+        <div class="panel" data-show="error">
+          <div class="grow"><div class="status bad" id="errText">Something went wrong.</div></div>
+          <button class="btn" id="errBtn" type="button">Try again</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<section class="block"><div class="wrap">
+  <h2>Your deck never touches a server.</h2>
+  <div class="trust">
+    <div><h3>Nothing is uploaded</h3><p>The cleanup runs in your browser tab. Go offline after the page loads and it still works.</p></div>
+    <div><h3>Open source</h3><p>Every line is on GitHub. Read it, audit it, fork it.</p></div>
+    <div><h3>Free, no account</h3><p>No limits, no email wall, no watermark of our own.</p></div>
+  </div>
+</div></section>
+
+<section class="block"><div class="wrap">
+  <h2>Three steps, about ten seconds.</h2>
+  <ol class="steps">
+    <li><h3>Export from Gamma</h3><p>Open your deck in Gamma and export it as a PowerPoint (.pptx) file.</p></li>
+    <li><h3>Drop it on the slide</h3><p>Ungamma finds the repeated badge images in your slides, layouts, and masters.</p></li>
+    <li><h3>Download the clean copy</h3><p>Your original stays untouched. Open the new file and check it before presenting.</p></li>
+  </ol>
+</div></section>
+
+<section class="block"><div class="wrap">
+  <h2>Questions people ask.</h2>
+  <div class="faq">
+    <details><summary>How do I remove the Gamma watermark from a PowerPoint?</summary><p>Export your deck from Gamma as PPTX, drop it into the slide above, and download the cleaned file.</p></details>
+    <details><summary>Is it safe? Do you upload my presentation?</summary><p>No. The file is processed entirely in your browser and is never sent anywhere.</p></details>
+    <details><summary>Will it break my slide design?</summary><p>It skips full-slide background images and only removes repeated badge assets. Your original file is never modified, and you should still check the result.</p></details>
+    <details><summary>It didn't remove the badge. Why?</summary><p>This tool is built only for the "Made with Gamma" watermark in Gamma PPTX exports. If it missed one, open an issue on GitHub and we'll look at it.</p></details>
+  </div>
+</div></section>
+
+<section class="cta">
+  <div class="wrap">
+    <h2>Saved your deck? Give it a star.</h2>
+    <p>It takes one second, it's free, and it's the only way this tool gets found by the next person fighting a watermark.</p>
+    <a class="btn pink" href="https://github.com/Shariqtechie/gamma-watermark-remover" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.7 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg>
+      Star on GitHub <span data-stars></span>
+    </a>
+  </div>
+</section>
+<footer><div class="wrap"><p>Made by <a href="https://github.com/Shariqtechie" target="_blank" rel="noopener">Shariqtechie</a>. Independent open-source project, not affiliated with, endorsed by, or sponsored by Gamma. "Gamma" is a trademark of its owner. Use it only on presentations you own or have the right to modify.</p></div></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+<script src="js/script.js"></script>
+</body>
+</html>

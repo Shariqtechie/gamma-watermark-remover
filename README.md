@@ -12,6 +12,8 @@
 
 ### [👉 **Open the tool: ungamma.pages.dev**](https://ungamma.pages.dev/)
 
+<img src="site/assets/img/og-image.png" alt="Ungamma: your slides, minus the Gamma badge" width="720">
+
 <!-- 🎬 ADD YOUR DEMO GIF HERE. This is the single biggest star-driver. -->
 <!-- ![Demo](assets/demo.gif) -->
 
@@ -160,13 +162,19 @@ If the tool fails on a deck, open an issue and include:
 
 ## 🗺️ Roadmap
 
-- [ ] Drag & drop multiple files (batch cleaning)
-- [ ] Before/after preview
-- [ ] Detect and report exactly what was removed
-- [ ] Dark mode
-- [ ] Support more export structures
+All of these will run 100% client-side, with no backend and no uploads.
 
-Got an idea? [Open an issue](../../issues) and let's talk.
+- [ ] **Badge gallery:** preview every suspected watermark image and click the ones to remove, so a logo you want to keep is never deleted
+- [ ] **Batch cleaning:** drop 50 decks at once and get one `Cleaned_Presentations.zip` back
+- [ ] **Metadata scrubber:** clear author, company, and edit-time info from `docProps/core.xml` and `docProps/app.xml`
+- [ ] **Presenter notes remover:** one toggle to strip everything in `ppt/notesSlides/`
+- [ ] **Embedded font stripper:** drop `ppt/fonts/*.fntdata` and shrink bloated files by 10 to 50 MB
+- [ ] **Gamma PDF exports:** support cleaning PDFs exported from Gamma, using `pdf-lib`
+- [ ] **Local PDF export:** render the cleaned deck to PDF right in the browser
+- [ ] **Before/after preview** and a report of exactly what was removed
+- [ ] **Dark mode / theme inverter:** swap `<a:clrScheme>` colors in `ppt/theme/theme1.xml`
+
+Got an idea or a deck that fails? [Open an issue](../../issues) and let's talk.
 
 ---
 

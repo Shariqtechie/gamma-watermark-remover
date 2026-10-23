@@ -1,191 +1,113 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const homeView = document.getElementById('homeView');
-    const toolView = document.getElementById('toolView');
-    const openWatermarkToolBtn = document.getElementById('openWatermarkTool');
-    const backHomeBtn = document.getElementById('backHomeBtn');
-    const dropzone = document.getElementById('dropzone');
-    const fileInput = document.getElementById('fileInput');
-    const fileInfo = document.getElementById('fileInfo');
-    const fileNameDisplay = document.getElementById('fileName');
-    const removeFileBtn = document.getElementById('removeFile');
-    const processBtn = document.getElementById('processBtn');
+    const $ = id => document.getElementById(id);
+    const stage = $('stage'), slide = $('slide'), fileInput = $('fileInput');
+    const panels = [...document.querySelectorAll('.panel')];
+    let selectedFile = null, resultBlob = null, resultName = '';
 
-    const progressArea = document.getElementById('progressArea');
-    const funMessage = document.getElementById('funMessage');
-    const progressBar = document.getElementById('progressBar');
-
-    let selectedFile = null;
-
-    const statusMessages = [
+    const messages = [
         'Reading PPTX package...',
-        'Mapping slide and layout relationships...',
+        'Mapping slides, layouts and masters...',
         'Fingerprinting embedded images...',
-        'Checking slide layouts and masters...',
-        'Finding repeated watermark assets...',
-        'Removing safe watermark traces...',
-        'Rebuilding presentation package...'
+        'Hunting the Gamma badge...',
+        'Erasing safe traces...',
+        'Rebuilding your deck...'
     ];
 
-    function showHomeView() {
-        resetToInitialState();
-        homeView.classList.remove('hidden');
-        toolView.classList.add('hidden');
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    const fmt = n => n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB';
+
+    function setState(s) {
+        stage.dataset.state = s;
+        panels.forEach(p => { p.hidden = !p.dataset.show.split(' ').includes(s); });
     }
 
-    function showToolView() {
-        homeView.classList.add('hidden');
-        toolView.classList.remove('hidden');
+    function reset() {
+        selectedFile = null; resultBlob = null; fileInput.value = '';
+        setState('idle');
     }
 
-    openWatermarkToolBtn.addEventListener('click', showToolView);
-    backHomeBtn.addEventListener('click', showHomeView);
-
-    dropzone.addEventListener('click', () => fileInput.click());
-
-    fileInput.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) {
-            handleFileSelect(e.target.files[0]);
-        }
-    });
-
-    dropzone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropzone.classList.add('dragover');
-    });
-
-    dropzone.addEventListener('dragleave', (e) => {
-        e.preventDefault();
-        dropzone.classList.remove('dragover');
-    });
-
-    dropzone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropzone.classList.remove('dragover');
-        if (e.dataTransfer.files.length > 0) {
-            handleFileSelect(e.dataTransfer.files[0]);
-        }
-    });
-
-    removeFileBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        resetToInitialState();
-    });
-
-    processBtn.addEventListener('click', async () => {
-        if (!selectedFile) return;
-
-        dropzone.style.display = 'none';
-        fileInfo.style.display = 'none';
-        processBtn.style.display = 'none';
-        progressArea.classList.add('active');
-
-        await startProgressAndProcess();
-    });
-
-    function handleFileSelect(file) {
-        if (!file.name.toLowerCase().endsWith('.pptx')) {
-            alert('Please select a .pptx file.');
+    function pick(file) {
+        if (!file) return;
+        if (!/\.pptx$/i.test(file.name)) {
+            $('errText').textContent = 'That is not a .pptx file. Export your Gamma deck as PowerPoint first.';
+            setState('error');
             return;
         }
-
         selectedFile = file;
-        fileNameDisplay.textContent = file.name;
-        dropzone.style.display = 'none';
-        fileInfo.style.display = 'flex';
-        fileInfo.classList.add('active');
-        processBtn.disabled = false;
-        progressArea.classList.remove('active');
+        $('fileName').textContent = file.name;
+        $('fileSize').textContent = fmt(file.size);
+        setState('ready');
     }
 
-    function resetToInitialState() {
-        selectedFile = null;
-        fileInput.value = '';
-        fileInfo.classList.remove('active');
-        fileInfo.style.display = 'none';
-        dropzone.style.display = 'block';
-        processBtn.style.display = 'block';
-        processBtn.textContent = 'Remove Watermark';
-        processBtn.disabled = true;
-        progressArea.classList.remove('active');
-        progressBar.style.width = '0%';
-        progressBar.style.background = '';
-        funMessage.textContent = 'Preparing scan...';
-        funMessage.style.color = '';
-    }
+    slide.addEventListener('click', () => { if (stage.dataset.state === 'idle') fileInput.click(); });
+    slide.addEventListener('keydown', e => {
+        if ((e.key === 'Enter' || e.key === ' ') && stage.dataset.state === 'idle') { e.preventDefault(); fileInput.click(); }
+    });
+    $('browseBtn').addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', e => pick(e.target.files[0]));
+    $('clearBtn').addEventListener('click', reset);
+    $('anotherBtn').addEventListener('click', reset);
+    $('emptyBtn').addEventListener('click', reset);
+    $('errBtn').addEventListener('click', reset);
+    $('againDl').addEventListener('click', () => { if (resultBlob) saveAs(resultBlob, resultName); });
 
-    function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
+    // Accept a drop anywhere on the page so a missed target never opens the file in the browser.
+    window.addEventListener('dragover', e => { e.preventDefault(); stage.classList.add('drag'); });
+    window.addEventListener('dragleave', e => { if (!e.relatedTarget) stage.classList.remove('drag'); });
+    window.addEventListener('drop', e => {
+        e.preventDefault();
+        stage.classList.remove('drag');
+        if (['idle', 'ready', 'empty', 'error', 'done'].includes(stage.dataset.state) && e.dataTransfer.files.length) pick(e.dataTransfer.files[0]);
+    });
 
-    async function startProgressAndProcess() {
-        let progress = 0;
-        let isProcessingDone = false;
-        let pResult = null;
-        let pError = null;
+    $('goBtn').addEventListener('click', async () => {
+        if (!selectedFile) return;
+        setState('scanning');
+        const bar = $('barFill'), text = $('statusText');
+        const started = Date.now();
+        let done = false, result = null, error = null;
 
-        processPPTX()
-            .then(result => {
-                pResult = result;
-                isProcessingDone = true;
-            })
-            .catch(err => {
-                pError = err;
-                isProcessingDone = true;
-            });
+        processPPTX().then(r => { result = r; }).catch(e => { error = e; }).finally(() => { done = true; });
 
-        for (let i = 0; i < statusMessages.length; i++) {
-            funMessage.textContent = statusMessages[i];
-            const target = Math.min(92, Math.round(((i + 1) / statusMessages.length) * 92));
-
-            while (progress < target) {
-                progress += 2;
-                progressBar.style.width = `${Math.min(progress, target)}%`;
-                await sleep(35);
-            }
-
-            if (isProcessingDone && progress >= 70) break;
-            await sleep(220);
+        let i = 0, pct = 4;
+        while (!done || Date.now() - started < 2400) {
+            text.textContent = messages[Math.min(i, messages.length - 1)];
+            pct = Math.min(94, pct + 7);
+            bar.style.width = pct + '%';
+            i++;
+            await sleep(400);
         }
 
-        while (!isProcessingDone) {
-            funMessage.textContent = 'Finalizing cleaned PPTX...';
-            await sleep(350);
-        }
-
-        if (pError) {
-            funMessage.textContent = `Failed: ${pError.message}`;
-            funMessage.style.color = 'var(--error-color)';
-            progressBar.style.background = 'var(--error-color)';
-            processBtn.style.display = 'block';
-            processBtn.textContent = 'Retry';
-            processBtn.disabled = false;
+        if (error) {
+            console.error(error);
+            $('errText').textContent = 'Could not read this file: ' + error.message;
+            setState('error');
             return;
         }
+        if (result.status === 'no_watermarks') { setState('empty'); return; }
 
-        progressBar.style.width = '100%';
+        bar.style.width = '100%';
+        resultBlob = result.blob;
+        resultName = selectedFile.name.replace(/\.pptx$/i, '-cleaned.pptx');
+        $('stats').innerHTML = [
+            result.removedImages + ' image' + (result.removedImages === 1 ? '' : 's') + ' removed',
+            result.removedShapes + ' trace' + (result.removedShapes === 1 ? '' : 's') + ' cleaned',
+            fmt(selectedFile.size) + ' to ' + fmt(result.blob.size)
+        ].map(t => '<span>' + t + '</span>').join('');
+        setState('done');
+        saveAs(resultBlob, resultName);
+    });
 
-        if (pResult.status === 'no_watermarks') {
-            funMessage.textContent = 'No safe watermark candidates detected.';
-            funMessage.style.color = 'var(--error-color)';
-            progressBar.style.background = 'var(--error-color)';
+    // Live GitHub star count (only a public API call, your file is never involved).
+    fetch('https://api.github.com/repos/Shariqtechie/gamma-watermark-remover')
+        .then(r => r.ok ? r.json() : null)
+        .then(d => {
+            if (!d || typeof d.stargazers_count !== 'number') return;
+            document.querySelectorAll('[data-stars]').forEach(el => { el.textContent = d.stargazers_count.toLocaleString(); });
+        })
+        .catch(() => {});
 
-            processBtn.style.display = 'block';
-            processBtn.textContent = 'Scan Again';
-            processBtn.disabled = false;
-            fileInfo.style.display = 'flex';
-            return;
-        }
-
-        funMessage.textContent = `Done. Removed ${pResult.removedImages} image asset(s) and ${pResult.removedShapes} XML trace(s).`;
-        funMessage.style.color = 'var(--success-color)';
-        progressBar.style.background = 'var(--success-color)';
-
-        saveAs(pResult.blob, selectedFile.name.replace(/\.pptx$/i, '-cleaned.pptx'));
-
-        setTimeout(() => {
-            resetToInitialState();
-        }, 2500);
-    }
+    setState('idle');
 
     function localName(node) {
         return (node.localName || node.nodeName || '').toLowerCase();
