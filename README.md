@@ -1,23 +1,18 @@
 <div align="center">
 
-# 🧼 Gamma Watermark Remover
+<img src="site/assets/img/banner.png" alt="Gamma Watermark Remover: remove the Made with Gamma watermark from PPTX files" width="100%">
 
-### Remove the "Made with Gamma" watermark from your exported PPTX in seconds.
-**100% in your browser. No upload. No signup. No BS.**
+<br><br>
 
 [![Try it Live](https://img.shields.io/badge/🚀%20Try%20It%20Live-Free-8b5cf6?style=for-the-badge)](https://ungamma.pages.dev/)
 [![Runs Locally](https://img.shields.io/badge/Runs-In%20Your%20Browser-10b981?style=for-the-badge)](https://ungamma.pages.dev/)
 [![No Upload](https://img.shields.io/badge/Files-Never%20Uploaded-3b82f6?style=for-the-badge)](https://ungamma.pages.dev/)
+[![Stars](https://img.shields.io/github/stars/Shariqtechie/gamma-watermark-remover?style=for-the-badge&color=f59e0b)](https://github.com/Shariqtechie/gamma-watermark-remover/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
-### [👉 **Open the tool: ungamma.pages.dev**](https://ungamma.pages.dev/)
+### Remove the "Made with Gamma" watermark from your PPTX. Drop the file, get a clean copy.
 
-<img src="site/assets/img/og-image.png" alt="Ungamma: your slides, minus the Gamma badge" width="720">
-
-<!-- 🎬 ADD YOUR DEMO GIF HERE. This is the single biggest star-driver. -->
-<!-- ![Demo](assets/demo.gif) -->
-
-**If this saved you time, a ⭐ helps other people find it. Thank you!**
+Open source • no upload • no signup • no ads • runs in your browser
 
 </div>
 
