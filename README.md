@@ -1,91 +1,205 @@
-# Gamma Cleaner
+<div align="center">
 
-**A free, browser-based tool to remove Gamma's repeated watermark/branding images from exported `.pptx` files — 100% client-side, nothing uploaded.**
+# 🧼 Gamma Watermark Remover
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-8b5cf6?style=for-the-badge)](https://pptx-tools.pages.dev/)
-[![MIT License](https://img.shields.io/badge/MIT%20License-blue?style=for-the-badge)](./LICENSE)
-![100% Client-Side](https://img.shields.io/badge/100%25%20Client--Side-10b981?style=for-the-badge)
+### Remove the "Made with Gamma" watermark from your exported PPTX in seconds.
+**100% in your browser. No upload. No signup. No BS.**
 
-[**➤ Use the live tool**](https://pptx-tools.pages.dev/)
+[![Try it Live](https://img.shields.io/badge/🚀%20Try%20It%20Live-Free-8b5cf6?style=for-the-badge)](https://ungamma.pages.dev/)
+[![Runs Locally](https://img.shields.io/badge/Runs-In%20Your%20Browser-10b981?style=for-the-badge)](https://ungamma.pages.dev/)
+[![No Upload](https://img.shields.io/badge/Files-Never%20Uploaded-3b82f6?style=for-the-badge)](https://ungamma.pages.dev/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
----
+### [👉 **Open the tool: ungamma.pages.dev**](https://ungamma.pages.dev/)
 
-## What is this?
+<!-- 🎬 ADD YOUR DEMO GIF HERE. This is the single biggest star-driver. -->
+<!-- ![Demo](assets/demo.gif) -->
 
-When you export a deck from [Gamma](https://gamma.app) as `.pptx`, the file often has a repeated "Made with Gamma" watermark/logo baked into the slide layouts and master — not just one visible badge, but the same image asset duplicated across every layout. That makes it tedious to strip out manually in PowerPoint.
+**If this saved you time, a ⭐ helps other people find it. Thank you!**
 
-**Gamma Cleaner** scans the internal XML structure of the `.pptx` file, detects the repeated watermark image by hash, and removes it — while trying to preserve your actual slide content and full-slide backgrounds.
-
-Built for personal use, cleaning up decks I exported myself. Sharing it in case it helps others doing the same with their own exports.
-
-> **Disclaimer:** This tool is intended for personal use on presentations you created and exported yourself. It does not interact with Gamma's servers, bypass any login, or unlock paid features — it only edits a local `.pptx` file you already have, the same way you could do manually with a zip editor, just automated. "Gamma" is a trademark of its respective owner; this project is not affiliated with or endorsed by Gamma. Please review Gamma's terms of service and use this responsibly.
-
----
-
-## Privacy
-
-Your `.pptx` file never leaves your device. No upload server, no account, no file storage — everything runs in your browser.
+</div>
 
 ---
 
-## Features
+## ⚡ The 10-second version
 
-- 100% client-side, runs directly in the browser
-- No file upload, no account required
-- Detects Gamma's repeated watermark/logo image via hashing
-- Scans slides, slide layouts, and slide masters
-- Skips full-slide background-like images to avoid breaking your design
-- Downloads a cleaned copy automatically
-- Free and open source
+1. Export your deck from Gamma as **.pptx**
+2. Drop it into the tool
+3. Download the clean copy
+
+That's it. Your file is processed **locally in your browser tab** and never touches a server.
 
 ---
 
-## How it works
+## 🤔 Why does this exist?
 
-A `.pptx` file is a zip archive of XML files and media assets. Gamma Cleaner:
+Exporting a presentation from Gamma can leave branding images baked into your slides, layouts, and masters. Deleting them by hand in PowerPoint means opening every layout and master and hunting for the same image again and again.
 
-1. Opens the file locally using JSZip
-2. Reads slide, layout, and master relationship files
-3. Maps image references to their XML traces
-4. Hashes embedded images to detect repeats (the watermark)
+This tool does that cleanup automatically.
+
+---
+
+## ✨ Features
+
+| | |
+|---|---|
+| 🔒 **Private by design** | Runs 100% client-side. Your file never leaves your device. |
+| ⚡ **Instant** | No queue, no waiting on a server. |
+| 🆓 **Free forever** | No account, no paywall, no limits. |
+| 🧠 **Smart detection** | Finds repeated embedded images by hash across slides, layouts, and masters. |
+| 🎨 **Keeps your design** | Skips full-slide background-like images so your deck still looks right. |
+| 📦 **Zero install** | Open the site and go. Or clone the repo and open `index.html`. |
+| 🔓 **Open source** | Read every line of the code. Nothing hidden. |
+
+---
+
+## 🔐 Privacy
+
+Presentations are often confidential, so this was built to never see your file.
+
+- ❌ No upload server
+- ❌ No account or login
+- ❌ No file storage
+- ❌ No tracking of your file contents
+- ✅ Everything happens in your browser with JavaScript
+
+Don't trust it? Disconnect from the internet after the page loads and it still works. Or read the source.
+
+---
+
+## 🛠️ How it works
+
+A `.pptx` is just a ZIP of XML files and media assets. The tool:
+
+1. Opens the file locally using [JSZip](https://stuk.github.io/jszip/)
+2. Reads the relationship files for slides, layouts, and masters
+3. Maps image references to where they're used
+4. Detects repeated embedded images using file hashes
 5. Filters out full-slide background-like images
-6. Removes matching watermark image references
-7. Rebuilds the `.pptx` and downloads the cleaned version
+6. Removes the matching unwanted image references
+7. Rebuilds the `.pptx` and downloads the cleaned copy
 
 ---
 
-## Heads up
+## ❓ FAQ
 
-Results can vary depending on how the deck was exported. If a watermark doesn't fully get removed, or the cleaned `.pptx` doesn't open correctly, [open an issue](https://github.com/Shariqtechie/gamma-cleaner/issues) with the details — I'll take it from there.
+<details>
+<summary><b>How do I remove the Gamma watermark from a PowerPoint?</b></summary>
 
-- Always review the cleaned file before using it
+Export your deck from Gamma as PPTX, open the tool, drop the file in, and download the cleaned version. No software to install.
+</details>
+
+<details>
+<summary><b>Is it safe? Do you upload my presentation?</b></summary>
+
+No. The file is processed entirely in your browser and is never sent anywhere.
+</details>
+
+<details>
+<summary><b>Does it work on Mac, Windows, Linux, and mobile?</b></summary>
+
+It works in any modern browser (Chrome, Edge, Firefox, Safari). Very large decks on phones may be slower.
+</details>
+
+<details>
+<summary><b>Will it break my slide design?</b></summary>
+
+It's built to skip full-slide background-like images and only remove repeated embedded assets. Still, always open the cleaned file and check it before presenting. Your original file is never modified.
+</details>
+
+<details>
+<summary><b>It didn't remove the watermark. Why?</b></summary>
+
+See [Limitations](#️-limitations) below, then [open an issue](../../issues) with details. Real-world failing files are the best way to improve the tool.
+</details>
 
 ---
 
-## Tech stack
+## ⚠️ Limitations
 
-![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
-![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-[![JSZip](https://img.shields.io/badge/JSZip-yellow?style=for-the-badge)](https://stuk.github.io/jszip/)
-[![FileSaver.js](https://img.shields.io/badge/FileSaver.js-grey?style=for-the-badge)](https://github.com/eligrey/FileSaver.js/)
-![Cloudflare Pages](https://img.shields.io/badge/Cloudflare%20Pages-F38020?style=for-the-badge&logo=cloudflarepages&logoColor=white)
+This tool is built **only** to remove the **"Made with Gamma" watermark** from PPTX files exported from Gamma. It is not a general-purpose watermark remover, and it won't work on decks from other tools.
 
-## Contributing
+If the watermark is still there after cleaning, [open an issue](../../issues) and tell us what happened.
 
-Bug reports and test cases are welcome. If the tool fails on a specific `.pptx` (e.g. a Gamma export format change), open an issue with:
-
-- what you expected
-- what happened
-- whether the background changed
-- whether the watermark remained
-
-Please avoid uploading private or sensitive presentations publicly when filing issues.
-
-## License
-
-MIT — see [LICENSE](./LICENSE)
+Always open the cleaned file and check it before presenting.
 
 ---
 
-Made by [Shariqtechie](https://github.com/Shariqtechie)
+## 💻 Run locally
+
+```bash
+git clone https://github.com/Shariqtechie/gamma-watermark-remover.git
+cd gamma-watermark-remover
+# open index.html in your browser, that's it
+```
+
+No build step. No dependencies to install.
+
+---
+
+## 🧰 Tech stack
+
+HTML · CSS · Vanilla JavaScript · [JSZip](https://stuk.github.io/jszip/) · [FileSaver.js](https://github.com/eligrey/FileSaver.js) · Cloudflare Pages
+
+---
+
+## 🤝 Contributing
+
+PRs, bug reports, and test cases are very welcome.
+
+If the tool fails on a deck, open an issue and include:
+
+- What you expected
+- What actually happened
+- Whether the background changed
+- Whether the unwanted image remained
+
+> 🔒 Please don't attach private or sensitive presentations to public issues.
+
+---
+
+## 🗺️ Roadmap
+
+- [ ] Drag & drop multiple files (batch cleaning)
+- [ ] Before/after preview
+- [ ] Detect and report exactly what was removed
+- [ ] Dark mode
+- [ ] Support more export structures
+
+Got an idea? [Open an issue](../../issues) and let's talk.
+
+---
+
+## ⭐ Star History
+
+<a href="https://star-history.com/#Shariqtechie/gamma-watermark-remover&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Shariqtechie/gamma-watermark-remover&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Shariqtechie/gamma-watermark-remover&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Shariqtechie/gamma-watermark-remover&type=Date" />
+  </picture>
+</a>
+
+---
+
+## 📣 Share it
+
+Know someone fighting a watermark on their deck? Send them the link:
+
+**https://ungamma.pages.dev/**
+
+---
+
+## ⚖️ Disclaimer
+
+This is an independent open-source project and is **not affiliated with, endorsed by, or sponsored by Gamma**. "Gamma" is a trademark of its respective owner. Use this tool only on presentations you own or have the right to modify, and respect the terms of service of any platform you use.
+
+---
+
+<div align="center">
+
+### Made with ☕ by [Shariqtechie](https://github.com/Shariqtechie)
+
+**If this helped you, drop a ⭐. It takes one second and means a lot.**
+
+</div>
