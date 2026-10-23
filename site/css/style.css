@@ -79,10 +79,18 @@ h1{font:800 clamp(2.6rem,6.2vw,4.9rem)/1 var(--display);letter-spacing:-.035em}
 /* sections */
 section.block{padding:clamp(3rem,7vw,5.5rem) 0;border-top:2px solid var(--line)}
 h2{font:800 clamp(1.9rem,4vw,3rem)/1.05 var(--display);letter-spacing:-.03em;max-width:34rem}
-.trust{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:2.5rem}
-.trust div{padding-top:1rem;border-top:4px solid var(--ink)}
-.trust h3,.steps h3{font:600 1.3rem var(--display);letter-spacing:-.01em;margin-bottom:.4rem}
-.trust p,.steps p{color:var(--muted)}
+.trust-sec{background:var(--paper)}
+.trust-head{display:grid;grid-template-columns:1.1fr .9fr;gap:2rem;align-items:center}
+.proof{background:var(--ink);color:#fff;border-radius:22px;padding:1.6rem 1.8rem;transform:rotate(1.2deg);box-shadow:0 24px 50px -22px rgba(26,19,64,.6)}
+.proof-row{display:flex;justify-content:space-between;gap:1rem;padding-bottom:.9rem;border-bottom:1px dashed #4a4090;color:#c9c1f5;font-size:.95rem;font-weight:700}
+.proof-row span:last-child{color:#7ee9c3}
+.proof-big{font:800 clamp(3rem,7vw,5rem)/1 var(--display);letter-spacing:-.04em;margin-top:1rem}
+.proof-sub{color:#c9c1f5;margin-top:.3rem}
+.trust{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-top:2.5rem}
+.tcard{background:var(--bg);border:2px solid var(--line);border-radius:18px;padding:1.5rem}
+.tcard svg{width:44px;height:44px;padding:10px;border-radius:12px;background:var(--violet);stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-bottom:1rem}
+.tcard h3{font:600 1.3rem var(--display);letter-spacing:-.01em;margin-bottom:.4rem}
+.tcard p{color:var(--muted)}
 .steps{list-style:none;padding:0;margin-top:2.5rem;display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;counter-reset:s}
 .steps li{counter-increment:s;background:var(--paper);border-radius:18px;padding:1.5rem;border:2px solid var(--line)}
 .steps li::before{content:counter(s);display:grid;place-items:center;width:2.4rem;height:2.4rem;border-radius:50%;background:var(--violet);color:#fff;font:800 1.1rem var(--display);margin-bottom:1rem}
@@ -103,7 +111,8 @@ footer a{color:#fff}
 
 @media (max-width:860px){
  .hero{grid-template-columns:1fr}
- .trust,.steps{grid-template-columns:1fr}
+ .trust,.steps,.trust-head{grid-template-columns:1fr}
+ .proof{transform:none}
 }
 @media (prefers-reduced-motion:reduce){
  *,*::before,*::after{animation:none!important;transition:none!important}
